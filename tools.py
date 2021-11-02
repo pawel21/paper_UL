@@ -172,3 +172,40 @@ def plot_sed_ratio(path1, path2):
     ax1.set_xlabel("Energy [GeV]")
     plt.legend()
     plt.tight_layout()
+
+def plot_light_curve_ratio(list_output_flute_files_1, list_output_flute_files_2, xlim_list):
+    plt.rcParams.update({'font.size': 20})
+    x1 = []
+    y1 = []
+    for path in list_output_flute_files_1:
+        with uproot.open(path) as f:
+            x1.extend(list(f['UpperLimLC'].xvalues))
+            y1.extend(list(f['UpperLimLC'].yvalues))
+    
+    x2 = []
+    y2 = []
+    for path in list_output_flute_files_2:
+        with uproot.open(path) as f:
+            x2.extend(list(f['UpperLimLC'].xvalues))
+            y2.extend(list(f['UpperLimLC'].yvalues))
+            
+    fig = plt.figure(figsize=(16, 9)) 
+    gs = gridspec.GridSpec(2, 1, height_ratios=[2.5, 1]) 
+    ax0 = plt.subplot(gs[0])
+    ax0.plot(x1, y1, 'bv', markersize=10, label="Analysis")
+    ax0.plot(x2, y2, 'gv', markersize=10, label="X-check")
+    ax0.set_xlabel("Time [MJD]")
+    ax0.set_ylabel("Flux U.L. [cm$^{-2}$ s$^{-1}$] \n for $E > 100 GeV$")
+    ax0.set_yscale('log')
+    ax0.set_xlim(xlim_list)
+    
+    ax1 = plt.subplot(gs[1])
+    ratio = np.array(y1)/np.array(y2)
+    ax1.plot(x1, ratio, 'rs')
+    ax1.set_xlim(xlim_list)
+    ax1.set_ylim([0, 5])
+    ax1.plot(xlim_list, [2, 2], 'g-')
+    ax1.plot(xlim_list, [0.5, 0.5], 'g-')
+    ax1.plot(xlim_list, [1, 1], 'k--')
+    
+    plt.tight_layout()
